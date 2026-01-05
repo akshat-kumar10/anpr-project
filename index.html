@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANPR System</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f9; display: flex; flex-direction: column; align-items: center; padding: 50px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 400px; }
+        h1 { color: #333; margin-bottom: 20px; }
+        input[type="file"] { margin: 20px 0; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        #preview { max-width: 100%; margin-top: 20px; border-radius: 8px; display: none; }
+        #result { margin-top: 20px; font-weight: bold; font-size: 18px; color: #444; min-height: 50px; }
+        .loading { color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>License Plate Scanner</h1>
+    <input type="file" id="imageInput" accept="image/*" onchange="previewImage()">
+    <br>
+    <button onclick="scanPlate()">Scan Image</button>
+    <img id="preview" src="" alt="Image Preview">
+    <div id="result"></div>
+</div>
+
+<script>
+    function previewImage() {
+        const file = document.getElementById('imageInput').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('preview');
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    async function scanPlate() {
+        const input = document.getElementById('imageInput');
+        const resultDiv = document.getElementById('result');
+        
+        if (!input.files[0]) {
+            alert("Please select an image first.");
+            return;
+        }
+
+        resultDiv.innerHTML = '<span class="loading">Processing...</span>';
+
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+
+        try {
+            const response = await fetch('http://localhost:8000/detect', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.detected) {
+                resultDiv.innerHTML = `
+                    <div style="color: green;">Plate Detected!</div>
+                    <div style="font-size: 24px; color: #000; border: 2px solid #333; display:inline-block; padding: 5px 15px; margin-top:10px;">
+                        ${data.text}
+                    </div>
+                    <br><small>Confidence: ${(data.confidence * 100).toFixed(2)}%</small>
+                `;
+            } else {
+                resultDiv.innerHTML = '<span style="color: red;">No license plate detected.</span>';
+            }
+        } catch (error) {
+            console.error(error);
+            resultDiv.innerHTML = '<span style="color: red;">Error connecting to API. Is it running?</span>';
+        }
+    }
+</script>
+
+</body>
+</html>
