@@ -3,7 +3,9 @@
 A full-stack computer vision application that detects vehicle license plates and extracts the text using Deep Learning. Built with **YOLOv8** for object detection and **EasyOCR** for optical character recognition, wrapped in a **FastAPI** backend with a vanilla HTML/JS frontend.
 
 ![Website](images/Website.jpeg)
-Link to dataset: [License Plate Recognition](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e/dataset/11)
+
+
+### Link to dataset: [License Plate Recognition](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e/dataset/11)
 
 ## 🌟 Features
 * **Real-time Detection:** Uses a custom-trained YOLOv8 model (`best.pt`) to locate license plates with high accuracy (mAP50: ~97%).
